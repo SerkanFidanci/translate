@@ -529,3 +529,15 @@ def test_fit_loudness_includes_leaked_part(mini_project):
     fit.run(ctx)
     loud, _ = audio.read(p.abs(ctx.manifest.get("f001_s01")["candidates"]["A"][0]["fit"]), mono=True)
     assert audio.rms_dbfs(audio.trim(loud, sr)) > audio.rms_dbfs(audio.trim(quiet, sr)) + 3
+
+
+def test_peak_limiter_is_transparent_below_ceiling():
+    """Limiter sadece tepelerin çevresine dokunur: sessiz kısımlar sıkıştırılmaz/yükseltilmez."""
+    sr = 48000
+    t = np.arange(sr * 3) / sr
+    x = (0.05 * np.sin(2 * np.pi * 220 * t)).astype(np.float32)
+    x[sr: sr + 2000] += 0.98 * np.sin(2 * np.pi * 1000 * t[:2000]).astype(np.float32)  # kısa yüksek vuruş
+    y = audio.limit_true_peak(x, sr, -1.0)
+    assert audio.true_peak_db(y, sr) <= -0.99
+    assert np.allclose(y[: int(0.8 * sr)], x[: int(0.8 * sr)], atol=1e-6)  # vuruştan önceki kısık kısım aynı
+    assert np.allclose(y[int(1.5 * sr):], x[int(1.5 * sr):], atol=1e-6)    # vuruştan sonra da (pompalama yok)

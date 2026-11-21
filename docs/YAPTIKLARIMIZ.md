@@ -107,6 +107,9 @@ Ayrı proje kökü: `projects/007_first_light/` (ortamlar/modeller ana klasörde
   kayboluyordu. Düzeltme (genel): `fit.reference_speech` sızıntısı olan replikte referansa arka plandaki kısmı da
   ekliyor; dublaj −23 dB'e çıktı, Whisper mikste "Ah hiç zahmet etmeseydiniz" duyuyor. İşlenmiş arka planda
   gerçek İngilizce kalıntı yok (eşleşen 7 kelime müzik üstü Whisper uydurması).
+- Kullanıcı: "bazı sesleri atlamış, özellikle baştaki M". Ölçümle atlanmış replik bulunamadı (M'nin tüm satırları
+  mikste ve gönderilen 720p dosyada Whisper'la doğru okunuyor; satır başları ses stem'iyle hizalı; konuşmacı ve perde
+  doğru). Bulunan gerçek kusur miks limiteriydi (BILINEN_SORUNLAR: miks limiteri); düzeltilip v2 videosu gönderildi.
 - **Bitti (2026-11-21):** `projects/007_first_light/out/video/007_first_light_tr_v1_720p.mp4` (telefona gönderildi)
   ve `..._1080p.mp4` (iki ses izi: Türkçe + orijinal).
 
@@ -121,4 +124,4 @@ Ayrı proje kökü: `projects/007_first_light/` (ortamlar/modeller ana klasörde
 | `src/dubpoc/stages/qa.py` | CER, konuşmacı, duygu, `prosody`, `lang`, taşma cezası |
 | `src/dubpoc/stages/mix.py` + `src/dubpoc/audio.py` | yerleştirme, `suppress_speech`, `match_spectrum` |
 | `config.yaml` / `config.local.yaml` | varsayılanlar / bu makinede kullanılan doğal mod + VoxCPM2 ayarları |
-| `tests/test_core.py` | 43 test: `envs\core\Scripts\python.exe -m pytest -q` |
+| `tests/test_core.py` | 44 test: `envs\core\Scripts\python.exe -m pytest -q` |

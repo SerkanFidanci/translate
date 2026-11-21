@@ -72,6 +72,10 @@
 - **İki stem'e bölünen replik (düzeltildi, 2026-11-21):** DnR bir repliğin bir kısmını efekt/müzik stem'ine
   koyabiliyor (007: "So you shouldn't have."). Dublaj seviyesi artık iki kısmın toplamına eşleniyor
   (`fit.leak_loudness`, varsayılan açık); arka plan kısmı kenetlemeyle tahmin edildiği için ±2-3 dB sapabilir.
+- **Miks limiteri (düzeltildi, 2026-11-21):** pedalboard.Limiter (JUCE) şeffaf değil: −10 dBFS'ten itibaren 4:1
+  sıkıştırıp kazanç ekliyor; miks 1,1-1,5 kat değişen kazançla pompalanıyordu (yüksek müzik vuruşunun ardından kısık
+  konuşma da bastırılıyordu). `audio.limit_true_peak` artık sadece tepelerin çevresinde kazanç düşüren ileriye
+  bakan bir tepe limiteri. GTA miksleri eski limiterle üretildi; yeniden `mix` çalıştırılırsa düzelir.
 - **İngilizce kalıntı ölçümü:** Türkçe miks Whisper'a İngilizce zorlanarak verilirse Whisper Türkçeyi İngilizceye
   çeviriyor ("Şüpheliler bölgede" → "suspects are in the area"); kalıntı testi miks üzerinde değil, dublajsız arka
   plan katmanında yapılmalı.

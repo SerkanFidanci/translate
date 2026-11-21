@@ -56,7 +56,7 @@ envs\core\Scripts\dubpoc.exe doctor
 envs\core\Scripts\python.exe -m pytest -q
 ```
 
-(43 test geçmeli.)
+(44 test geçmeli.)
 
 ## 3. Veriler git'te yok: iki yol
 

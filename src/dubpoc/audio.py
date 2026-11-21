@@ -276,19 +276,27 @@ def time_stretch(x: np.ndarray, sr: int, speed: float, engine: str, ffmpeg: str 
 
 
 # ---- dinamik ---------------------------------------------------------------------------
-def limit_true_peak(x: np.ndarray, sr: int, ceiling_db: float = -1.0) -> np.ndarray:
-    """True-peak tavanı aşılırsa önce limiter, gerekirse kalan farkı kazançla düzelt."""
+def limit_true_peak(x: np.ndarray, sr: int, ceiling_db: float = -1.0, release_ms: float = 80.0) -> np.ndarray:
+    """True-peak tavanı aşılırsa sadece tepelerin çevresinde kazanç düşür (ileriye bakan, şeffaf tepe limiteri),
+    gerekirse kalan farkı kazançla düzelt.
+
+    Eskiden pedalboard.Limiter kullanılıyordu; o JUCE limiteri -10 dBFS'ten itibaren 4:1 sıkıştırıp eşik kadar
+    kazanç ekliyor: miks baştan sona 1,1-1,5 kat değişen kazançla "pompalıyordu" (007 fragmanında ölçüldü),
+    yüksek müzik vuruşlarının arkasından gelen kısık konuşma da birlikte bastırılıyordu."""
+    from scipy.ndimage import minimum_filter1d, uniform_filter1d
+
     tp = true_peak_db(x, sr)
     if tp <= ceiling_db:
         return x
-    try:
-        from pedalboard import Limiter, Pedalboard
-        board = Pedalboard([Limiter(threshold_db=ceiling_db - 0.3, release_ms=60.0)])
-        arr = x.T if x.ndim > 1 else x[None, :]
-        y = board(arr.astype(np.float32), sr)
-        y = y.T if x.ndim > 1 else y[0]
-    except ImportError:
-        y = x
+    x2 = (x if x.ndim > 1 else x[:, None]).astype(np.float32)
+    lin = 10 ** ((ceiling_db - 0.5) / 20)  # örnek tepesine 0,5 dB pay (örnekler arası tepe)
+    pk = np.max(np.abs(x2), axis=1)
+    need = np.minimum(1.0, lin / np.maximum(pk, 1e-12))
+    w = max(3, int(release_ms * sr / 1000)) | 1
+    # tepe çevresinde w genişliğinde düşük kazanç tut, w/2 ile yumuşat: tepede kazanç gerekeni aşmaz
+    g = uniform_filter1d(minimum_filter1d(need, size=w), size=max(1, w // 2))
+    y = x2 * g[:, None].astype(np.float32)
+    y = y if x.ndim > 1 else y[:, 0]
     tp2 = true_peak_db(y, sr)
     if tp2 > ceiling_db:  # limiter intersample tepeleri tam yakalayamazsa güvenli kazanç
         y = y * (10 ** ((ceiling_db - tp2) / 20))
