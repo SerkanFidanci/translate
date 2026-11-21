@@ -44,15 +44,43 @@ def channel_fx(ctx: Ctx, row: dict, manual: dict[str, str]) -> dict | None:
     c = ctx.cfg.get("fx") or {}
     if not c.get("enabled", True):
         return None
-    x, sr = audio.read(ctx.project.abs(row["voice_path"]), mono=True)
-    s0, s1 = row.get("speech_start", 0.0), row.get("speech_end") or len(x) / sr
-    prof = fx.band_profile(x[int(s0 * sr): int(s1 * sr)], sr)
+    x, sr = reference_speech(ctx, row)
+    prof = fx.band_profile(x, sr)
     explicit = (c.get("overrides") or {}).get(row["seg_id"]) or manual.get(row["seg_id"])
     kind, why = fx.choose_kind(prof, row.get("layer"), explicit, row.get("tr_style"), auto=bool(c.get("auto", True)),
                                phone_lo_db=float(c.get("phone_lo_db", -6.0)),
                                phone_hi_db=float(c.get("phone_hi_db", -26.0)),
                                hint_hi_db=float(c.get("hint_hi_db", -24.0)))
     return {"kind": kind, "why": why, **prof} if kind else None
+
+
+_REF_CACHE: dict[str, tuple] = {}
+
+
+def reference_speech(ctx: Ctx, row: dict) -> tuple[np.ndarray, int]:
+    """Orijinal repliğin konuşma kısmı (loudness ve tını referansı). Ayrıştırıcı repliği iki stem'e bölmüşse
+    (arka plan satırı bg_leak_of ile bu repliği gösteriyorsa) arka plandaki kısım da eklenir: 007 fragmanında
+    "So you shouldn't have." ses stem'inde -34,7 LUFS, arka plan stem'inde -21,7 LUFS'tu; dublaj yalnızca ilkine
+    eşlenip arka plan kısmı da mix'te bastırılınca replik müziğin altında kayboldu."""
+    key = row["seg_id"]
+    if key in _REF_CACHE:
+        return _REF_CACHE[key]
+    p = ctx.project
+    ox, osr = audio.read(p.abs(row["voice_path"]), mono=True)
+    s0, s1 = row.get("speech_start", 0.0), row.get("speech_end") or len(ox) / osr
+    ospeech = ox[int(s0 * osr): int(s1 * osr)].astype(np.float32)
+    leaks = [q for q in ctx.manifest.rows_of_file(row["file_id"])
+             if q.get("bg_leak_of") == row["seg_id"] and q.get("bg_region")]
+    if leaks and row.get("layer") != "bg" and row.get("bg_path") and ctx.cfg["fit"].get("leak_loudness", True):
+        bg, bsr = audio.read(p.abs(row["bg_path"]), mono=True)
+        bg = audio.resample(bg, bsr, osr)
+        # konuşma tahmini: bg satırlarının sesiyle aynı yöntem (çevre medyanının üstünde kalan, k=0)
+        _, est = audio.suppress_speech(bg, osr, [tuple(q["bg_region"]) for q in leaks], k_db=0.0)
+        a = int(round((float(row["start"]) + s0) * osr))
+        part = est[a: a + len(ospeech)]
+        ospeech = ospeech + np.pad(part, (0, len(ospeech) - len(part))).astype(np.float32)
+    _REF_CACHE[key] = (ospeech, osr)
+    return ospeech, osr
 
 
 def fit_one(ctx: Ctx, row: dict, cand: dict, out_name: str, engine: str) -> dict:
@@ -90,9 +118,7 @@ def fit_one(ctx: Ctx, row: dict, cand: dict, out_name: str, engine: str) -> dict
         y = y[:n] if len(y) >= n else np.pad(y, (0, n - len(y)))
 
     # loudness: orijinal segmentin konuşma kısmıyla aynı yöntemle ölç
-    ox, osr = audio.read(p.abs(row["voice_path"]), mono=True)
-    s0, s1 = row.get("speech_start", 0.0), row.get("speech_end") or len(ox) / osr
-    ospeech = ox[int(s0 * osr): int(s1 * osr)]
+    ospeech, osr = reference_speech(ctx, row)
     dry = y
     kind = (row.get("fx") or {}).get("kind")
     if kind:
@@ -155,6 +181,7 @@ def run(ctx: Ctx) -> None:
     from .translate import load_manual
 
     manual_fx = load_manual(p.root / "translations.csv", column="fx")
+    _REF_CACHE.clear()
     n_short = 0
     for r in rows:
         r["fx"] = channel_fx(ctx, r, manual_fx)

@@ -88,7 +88,7 @@ Aşamalar (her biri ayrı Python ortamında, `work/manifest.jsonl` üzerinden ha
 - **RX 6800:** CUDA yok; Windows'ta modellerimiz pratikte CPU'da çalışır. Linux + ROCm ile çoğu çalışır ama
   faster-whisper vb. değişmeli. Önerilmedi.
 
-## 4. 007 First Light duyuru fragmanı (YouTube `J4qY9DYE184`, 3:14) — devam ediyor
+## 4. 007 First Light duyuru fragmanı (YouTube `J4qY9DYE184`, 3:14)
 
 Ayrı proje kökü: `projects/007_first_light/` (ortamlar/modeller ana klasörden göreli yolla, `workers/` junction).
 `dubpoc --root projects/007_first_light run ...` ile çalışır.
@@ -100,7 +100,15 @@ Ayrı proje kökü: `projects/007_first_light/` (ortamlar/modeller ana klasörde
   satıra alındı: `projects/007_first_light/fix_segments.py`. Düzeltilmiş İngilizce: `subtitles.csv`.
 - 32 replik Türkçeye çevrildi (`translations.csv`; M'ye hitap "efendim", "009" → "sıfır sıfır dokuz").
   "PlayStation" logosu ve iki nefes sesi orijinal bırakıldı (`subtitles.csv`'de `-`).
-- Durum: ilk TTS turu çalışıyordu; kalan adımlar KURULUM_VE_DEVAM.md §4'te.
+- İki TTS turu: 32 replik × 3 normal aday, sonra QA'dan geçen Türkçe okumalardan 2 istemli aday. Seçilenlerin
+  12/32'si istemli; seçilen adayların hepsi kendi başına CER 0 (Greenway'in "009" satırı hariç, 0,14), fail 0.
+- Mikste bulunan sorun: 1:25 "So you shouldn't have." ayrıştırıcıda ikiye bölünmüştü (ses stem'inde −34,7 LUFS,
+  efekt stem'inde −21,7 LUFS); dublaj sadece ilk kısma eşlenip ikinci kısım da bastırıldığı için müziğin altında
+  kayboluyordu. Düzeltme (genel): `fit.reference_speech` sızıntısı olan replikte referansa arka plandaki kısmı da
+  ekliyor; dublaj −23 dB'e çıktı, Whisper mikste "Ah hiç zahmet etmeseydiniz" duyuyor. İşlenmiş arka planda
+  gerçek İngilizce kalıntı yok (eşleşen 7 kelime müzik üstü Whisper uydurması).
+- **Bitti (2026-11-21):** `projects/007_first_light/out/video/007_first_light_tr_v1_720p.mp4` (telefona gönderildi)
+  ve `..._1080p.mp4` (iki ses izi: Türkçe + orijinal).
 
 ## 5. Kod haritası (en çok değişen yerler)
 
@@ -113,4 +121,4 @@ Ayrı proje kökü: `projects/007_first_light/` (ortamlar/modeller ana klasörde
 | `src/dubpoc/stages/qa.py` | CER, konuşmacı, duygu, `prosody`, `lang`, taşma cezası |
 | `src/dubpoc/stages/mix.py` + `src/dubpoc/audio.py` | yerleştirme, `suppress_speech`, `match_spectrum` |
 | `config.yaml` / `config.local.yaml` | varsayılanlar / bu makinede kullanılan doğal mod + VoxCPM2 ayarları |
-| `tests/test_core.py` | 42 test: `envs\core\Scripts\python.exe -m pytest -q` |
+| `tests/test_core.py` | 43 test: `envs\core\Scripts\python.exe -m pytest -q` |

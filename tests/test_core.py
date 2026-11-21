@@ -507,3 +507,25 @@ def test_vad_chunk_merge(monkeypatch):
     monkeypatch.setitem(__import__("sys").modules, "faster_whisper.vad", mod)
     out = diarize._vad_regions(np.zeros(16000 * 30, dtype=np.float32), 16000)
     assert len(calls) == 2 and out == [(0.0, 1.0), (19.5, 20.0)]
+
+
+def test_fit_loudness_includes_leaked_part(mini_project):
+    """Replik ses ve arka plan stem'ine bölünmüşse dublaj seviyesi ikisinin toplamına eşlenir."""
+    p = mini_project
+    sr, n = 48000, int(6.0 * 48000)  # bölge çevresinde müzik bağlamı olsun (kenetleme medyanı)
+    music, speech = _burst_scene(sr, n, 0.3, 2.2)
+    sf.write(p.root / "work" / "seg" / "bg.wav", np.stack([music + speech * 8] * 2, axis=1), sr)  # asıl gövde arka planda
+    ctx = make_ctx(p)
+    fit.run(ctx)
+    r = ctx.manifest.rows[0]
+    quiet, _ = audio.read(p.abs(r["candidates"]["A"][0]["fit"]), mono=True)
+    leak = json.loads(json.dumps(r))
+    leak.update({"seg_id": "f001_b01", "layer": "bg", "bg_leak_of": "f001_s01", "bg_region": [0.2, 2.3],
+                 "candidates": {}, "best": {}})
+    r["bg_path"] = "work/seg/bg.wav"
+    ctx.manifest.rows.append(leak)
+    ctx.save()
+    ctx = make_ctx(p, force=True, only="f001_s01")
+    fit.run(ctx)
+    loud, _ = audio.read(p.abs(ctx.manifest.get("f001_s01")["candidates"]["A"][0]["fit"]), mono=True)
+    assert audio.rms_dbfs(audio.trim(loud, sr)) > audio.rms_dbfs(audio.trim(quiet, sr)) + 3

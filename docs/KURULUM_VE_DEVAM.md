@@ -56,7 +56,7 @@ envs\core\Scripts\dubpoc.exe doctor
 envs\core\Scripts\python.exe -m pytest -q
 ```
 
-(42 test geçmeli.)
+(43 test geçmeli.)
 
 ## 3. Veriler git'te yok: iki yol
 
@@ -100,7 +100,7 @@ ve `input\gta6_ending_tam.wav`. **Dikkat:** GTA satırları eski kodla segmentle
 (`s44b`, `s55b`, `b09` ...) büyüdü; sıfırdan çalıştırınca `seg_id`'ler kayar ve `translations.csv` yanlış satırlara
 düşer. GTA'yı sürdürmek için 3a yolunu kullan.
 
-## 4. 007 fragmanını bitir
+## 4. 007 fragmanı (bu PC'de bitti; evde yeniden üretmek ya da düzeltmek için)
 
 `workers/` klasörü bir bağlantı (junction), git'e girmez; bir kez oluştur:
 

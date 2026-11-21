@@ -69,6 +69,9 @@
   sesini bulur (alçak ve tiz birlikte kesik); megafon/telsiz `translations.csv` `fx` sütunuyla ya da style notunda
   geçen kelimeyle (orijinal gerçekten dar bantsa) seçilir. Arka plan satırlarının ses tahmini gürültülü olduğundan
   bu satırlarda alt bant ölçümü güvenilmez. Son karar kulakla verilmeli.
+- **İki stem'e bölünen replik (düzeltildi, 2026-11-21):** DnR bir repliğin bir kısmını efekt/müzik stem'ine
+  koyabiliyor (007: "So you shouldn't have."). Dublaj seviyesi artık iki kısmın toplamına eşleniyor
+  (`fit.leak_loudness`, varsayılan açık); arka plan kısmı kenetlemeyle tahmin edildiği için ±2-3 dB sapabilir.
 - **İngilizce kalıntı ölçümü:** Türkçe miks Whisper'a İngilizce zorlanarak verilirse Whisper Türkçeyi İngilizceye
   çeviriyor ("Şüpheliler bölgede" → "suspects are in the area"); kalıntı testi miks üzerinde değil, dublajsız arka
   plan katmanında yapılmalı.
