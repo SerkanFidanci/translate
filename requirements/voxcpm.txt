@@ -1,0 +1,22 @@
+# VoxCPM2 (OpenBMB, Apache-2.0) – Türkçe, duygu/üslup metin talimatıyla. ~5,5 GB VRAM (6 GB kartta sınırda).
+# voxcpm bağımlılıksız kurulur (--no-deps, setup_envs): "wetext" → kaldifst Windows'ta derlenmiyor ve sadece
+# Çince/İngilizce metin normalizasyonu için; gradio/spaces/funasr demo/ASR içindir.
+torch==2.6.0      # 2.9+ torchaudio torchcodec ister (Windows FFmpeg DLL sorunu)
+torchaudio==2.6.0
+transformers>=4.36.2
+einops
+inflect
+addict
+modelscope>=1.22.0
+datasets>=3,<4
+huggingface-hub
+pydantic
+tqdm
+simplejson
+sortedcontainers
+soundfile>=0.12
+soxr>=0.3
+librosa
+matplotlib
+safetensors
+argbind

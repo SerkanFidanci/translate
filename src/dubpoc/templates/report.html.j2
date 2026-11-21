@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dublaj Raporu</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1b1f24;--muted:#5b6470;--line:#e3e6ea;--acc:#2f6fdb;
+--ok:#1f8a4c;--ok-bg:#e3f4ea;--rev:#9a6700;--rev-bg:#fff4d6;--fail:#c4321c;--fail-bg:#fde7e3;--gray-bg:#eef0f3}
+@media (prefers-color-scheme: dark){:root{--bg:#121417;--card:#1b1e23;--fg:#e6e8eb;--muted:#9aa3ad;--line:#2c3138;
+--acc:#6aa0ff;--ok:#5fd08d;--ok-bg:#16301f;--rev:#e8c15a;--rev-bg:#33290f;--fail:#ff8a75;--fail-bg:#3a1a14;--gray-bg:#262a30}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1400px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:32px 0 12px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card .k{font-size:12px;color:var(--muted)}.card .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--gray-bg)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+audio{width:220px;height:32px;display:block}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:600;background:var(--gray-bg);color:var(--muted)}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-review{background:var(--rev-bg);color:var(--rev)}
+.b-fail,.b-error{background:var(--fail-bg);color:var(--fail)}
+.tr{font-weight:500}.en{color:var(--muted)}
+details summary{cursor:pointer;color:var(--acc);font-size:12px;margin-top:4px}
+.cand{display:grid;grid-template-columns:auto 230px 1fr;gap:4px 10px;align-items:center;margin:6px 0;font-size:12px}
+.cand.best{font-weight:600}
+.rate{display:flex;gap:2px;align-items:center;margin-top:4px}
+.rate button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;width:26px;height:24px;cursor:pointer;font-size:12px}
+.rate button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.rate span{font-size:11px;color:var(--muted);width:14px}
+textarea{width:100%;min-height:36px;margin-top:4px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:12px system-ui;padding:4px 6px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.btn.sec{background:transparent;color:var(--acc)}
+select,input[type=search]{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:5px 8px}
+.err{color:var(--fail);font-size:12px}
+.scroll{overflow-x:auto}
+#segs{min-width:1180px}
+@media (max-width:760px){audio{width:160px}.cand{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>Türkçe AI Dublaj — POC Raporu</h1>
+<div class="muted small">Oluşturulma: {{ generated }} · TTS: {{ (cfg.tts.backends or [cfg.tts.backend])|join(", ") }} · VC: {{ cfg.vc.backend }} · Çeviri: {{ cfg.translate.provider }}/{{ cfg.translate.model }}</div>
+<div class="muted small">Kişisel deneme amaçlıdır. Orijinal seslendirme sanatçılarına benzetilmiş çıktılar dağıtılmamalıdır.</div>
+
+<div class="cards">
+  <div class="card"><div class="k">Segment (aktif)</div><div class="v">{{ summary.n_active }} <span class="small muted">/ {{ summary.n_seg }}</span></div></div>
+  <div class="card"><div class="k">ok / review / fail</div><div class="v"><span style="color:var(--ok)">{{ summary.dist.ok }}</span> / <span style="color:var(--rev)">{{ summary.dist.review }}</span> / <span style="color:var(--fail)">{{ summary.dist.fail }}</span></div></div>
+  <div class="card"><div class="k">hata / bekleyen</div><div class="v">{{ summary.dist.error }} / {{ summary.dist.pending }}</div></div>
+  <div class="card"><div class="k">orijinal bırakılan / atlanan</div><div class="v">{{ summary.keep_original }} / {{ summary.skip }}</div></div>
+  {% for path in ["A", "B"] %}{% set m = summary[path] %}
+  <div class="card"><div class="k">Yol {{ path }} ort. ({{ m.n }} segment)</div>
+    <div class="small">WER {{ m.wer if m.wer is not none else "–" }} · CER {{ m.cer if m.cer is not none else "–" }}<br>
+    spk {{ m.spk_sim_rel if m.spk_sim_rel is not none else "–" }} · süre {{ m.dur_ratio if m.dur_ratio is not none else "–" }}<br>
+    duygu {{ m.emo_sim if m.emo_sim is not none else "–" }} · skor {{ m.score if m.score is not none else "–" }}</div></div>
+  {% endfor %}
+</div>
+<div class="muted small" style="margin-top:8px">Hedefler (ok): {{ q.text_metric|upper }} ≤ {{ q.wer_max if q.text_metric == "wer" else q.cer_max }}, spk_sim oranı ≥ {{ q.spk_sim_min_relative }}, süre oranı 1 ± {{ q.dur_tolerance }}</div>
+{% if notes %}<ul class="small muted">{% for n in notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+
+<h2>Dosyalar</h2>
+<div class="scroll"><table>
+<tr><th>Dosya</th><th>Orijinal</th><th>Yol A (TTS)</th><th>Yol B (İnsan)</th></tr>
+{% for f in files %}
+<tr><td><b>{{ f.file_id }}</b><div class="small muted">{{ f.src_path }} · {{ "%.1f"|format(f.dur or 0) }} sn · {{ f.n_seg }} seg{% if f.separation %} · {{ f.separation }}{% endif %}</div></td>
+<td>{% if f.orig %}<audio controls preload="none" src="{{ f.orig }}"></audio>{% endif %}</td>
+<td>{% if f.A %}<audio controls preload="none" src="{{ f.A }}"></audio>{% else %}<span class="muted">–</span>{% endif %}</td>
+<td>{% if f.B %}<audio controls preload="none" src="{{ f.B }}"></audio>{% else %}<span class="muted">–</span>{% endif %}</td></tr>
+{% endfor %}
+</table></div>
+
+<h2>Karakterler ve ses bankası</h2>
+<div class="scroll"><table>
+<tr><th>Karakter</th><th>Ses bankası</th><th>Baseline (pairwise)</th><th>Orijinal→bank</th><th>QA paydası</th><th>Klip</th></tr>
+{% for c in chars %}
+<tr><td><b>{{ c.name }}</b></td><td>{% if c.ref %}<audio controls preload="none" src="{{ c.ref }}"></audio>{% endif %}<div class="small muted">{{ c.bank_dur }} sn</div></td>
+<td class="num">{{ c.pairwise if c.pairwise is not none else "–" }}</td><td class="num">{{ c.orig_to_ref if c.orig_to_ref is not none else "–" }}</td>
+<td class="num">{{ c.qa_denominator if c.qa_denominator is not none else "–" }}</td><td class="num">{{ c.n_clips }}</td></tr>
+{% endfor %}
+</table></div>
+
+<h2>Segmentler</h2>
+<div class="toolbar">
+  <input type="search" id="q" placeholder="Ara (metin, karakter, seg_id)…">
+  <select id="fstate"><option value="">Tüm durumlar</option><option>ok</option><option>review</option><option>fail</option><option>error</option><option>keep_original</option><option>skip</option></select>
+  <button class="btn" id="dl">Puanları JSON indir</button>
+  <button class="btn sec" id="clr">Puanları temizle</button>
+  <span class="small muted" id="cnt"></span>
+</div>
+<div class="scroll"><table id="segs">
+<tr><th>Segment</th><th>Metin</th><th>Orijinal</th><th>Yol A (en iyi)</th><th>Yol B</th><th>Metrikler</th><th>Puan</th></tr>
+{% for s in segs %}
+<tr data-state="{{ s.state }}" data-text="{{ (s.seg_id ~ ' ' ~ (s.char or '') ~ ' ' ~ (s.text_en or '') ~ ' ' ~ (s.text_tr or ''))|lower }}">
+<td><b>{{ s.seg_id }}</b><div class="small">{{ s.char or "?" }}</div>
+  <div class="small muted">{{ s.emotion or "–" }}{% if s.intensity is not none %} · {{ "%.2f"|format(s.intensity) }}{% endif %}</div>
+  <div class="small muted">{% if s.dur_speech %}{{ "%.2f"|format(s.dur_speech) }} sn{% endif %}</div>
+  <span class="badge b-{{ s.state }}">{{ s.state or "pending" }}</span></td>
+<td style="min-width:240px"><div class="en">{{ s.text_en or "" }}</div><div class="tr">{{ s.text_tr or "" }}</div>
+  {% if s.text_tr %}<div class="small muted">{{ s.tr_syllables }} / {{ s.syll_target }} hece{% if s.shorten_round %} · {{ s.shorten_round }} kısaltma turu{% endif %}</div>{% endif %}
+  {% for e in s.errors %}<div class="err">[{{ e.stage }}] {{ e.msg[:300] }}</div>{% endfor %}
+  {% for path, ns in (s.notes or {}).items() %}{% if ns %}{% for n in ns %}<div class="small muted">{{ path }}: {{ n }}</div>{% endfor %}{% endif %}{% endfor %}</td>
+<td>{% if s.orig %}<audio controls preload="none" src="{{ s.orig }}"></audio>{% endif %}</td>
+<td>{% if s.a_best and s.a_best.audio %}<audio controls preload="none" src="{{ s.a_best.audio }}"></audio>
+  <div class="small muted">{{ s.a_best.id }} · {{ s.a_best.backend }}</div>{% endif %}
+  {% if s.a_list %}<details><summary>Tüm A adayları ({{ s.a_list|length }})</summary>
+  {% for c in s.a_list %}<div class="cand{% if c.is_best %} best{% endif %}"><span>{{ c.id }}{% if c.is_best %} ★{% endif %}</span>
+    {% if c.audio %}<audio controls preload="none" src="{{ c.audio }}"></audio>{% else %}<span class="muted">çıktı yok</span>{% endif %}
+    <span class="muted">skor {{ c.score if c.score is not none else "–" }} · WER {{ c.wer if c.wer is not none else "–" }} · CER {{ c.cer if c.cer is not none else "–" }} · spk {{ c.spk_sim_rel if c.spk_sim_rel is not none else "–" }} · süre {{ c.dur_ratio if c.dur_ratio is not none else "–" }}{% if c.asr_tr %}<br>ASR: “{{ c.asr_tr }}”{% endif %}</span></div>
+  {% endfor %}</details>{% endif %}</td>
+<td>{% if s.b and s.b.audio %}<audio controls preload="none" src="{{ s.b.audio }}"></audio>{% else %}<span class="muted small">kayıt yok</span>{% endif %}</td>
+<td class="num small">
+  {% for label, c in [("A", s.a_best), ("B", s.b)] %}{% if c %}
+  <div><b>{{ label }}</b> <span class="badge b-{{ c.qa }}">{{ c.qa or "–" }}</span></div>
+  <div>WER {{ c.wer if c.wer is not none else "–" }} · CER {{ c.cer if c.cer is not none else "–" }}</div>
+  <div>spk {{ c.spk_sim_rel if c.spk_sim_rel is not none else "–" }} · süre {{ c.dur_ratio if c.dur_ratio is not none else "–" }}</div>
+  <div>duygu {{ c.emo_sim if c.emo_sim is not none else "–" }}{% if c.emotion %} ({{ c.emotion }}){% endif %} · skor {{ c.score if c.score is not none else "–" }}</div>
+  {% endif %}{% endfor %}</td>
+<td style="min-width:170px" data-seg="{{ s.seg_id }}">
+  {% if s.a_best %}<div class="rate" data-path="A"><span>A</span>{% for i in range(1, 6) %}<button type="button" data-v="{{ i }}">{{ i }}</button>{% endfor %}</div>{% endif %}
+  {% if s.b %}<div class="rate" data-path="B"><span>B</span>{% for i in range(1, 6) %}<button type="button" data-v="{{ i }}">{{ i }}</button>{% endfor %}</div>{% endif %}
+  {% if s.a_best or s.b %}<textarea placeholder="Not…"></textarea>{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table></div>
+</main>
+<script>
+(function(){
+  var KEY = "dubpoc-ratings-{{ project_key }}";
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return {}; } }
+  function save(d){ try { localStorage.setItem(KEY, JSON.stringify(d)); } catch(e){} }
+  var data = load();
+  document.querySelectorAll("td[data-seg]").forEach(function(td){
+    var seg = td.getAttribute("data-seg"); var cur = data[seg] || {};
+    td.querySelectorAll(".rate").forEach(function(row){
+      var path = row.getAttribute("data-path");
+      function paint(){ row.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on", String(cur[path]) === b.getAttribute("data-v")); }); }
+      row.addEventListener("click", function(ev){
+        var b = ev.target.closest("button"); if(!b) return;
+        var v = parseInt(b.getAttribute("data-v"), 10);
+        cur[path] = (cur[path] === v) ? null : v; data[seg] = cur; save(data); paint();
+      });
+      paint();
+    });
+    var ta = td.querySelector("textarea");
+    if (ta) { ta.value = cur.note || ""; ta.addEventListener("input", function(){ cur.note = ta.value; data[seg] = cur; save(data); }); }
+  });
+  document.getElementById("dl").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify({exported: new Date().toISOString(), ratings: load()}, null, 2)], {type: "application/json"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "dubpoc_ratings.json";
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+  document.getElementById("clr").addEventListener("click", function(){
+    if (confirm("Tüm puan ve notlar silinsin mi?")) { try { localStorage.removeItem(KEY); } catch(e){} location.reload(); }
+  });
+  var q = document.getElementById("q"), fs = document.getElementById("fstate"), cnt = document.getElementById("cnt");
+  function filter(){
+    var t = q.value.toLowerCase(), st = fs.value, n = 0;
+    document.querySelectorAll("#segs tr[data-state]").forEach(function(tr){
+      var show = (!t || tr.getAttribute("data-text").indexOf(t) !== -1) && (!st || tr.getAttribute("data-state") === st);
+      tr.style.display = show ? "" : "none"; if (show) n++;
+    });
+    cnt.textContent = n + " segment";
+  }
+  q.addEventListener("input", filter); fs.addEventListener("change", filter); filter();
+})();
+</script>
+</body>
+</html>

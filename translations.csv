@@ -1,0 +1,70 @@
+seg_id,text_tr,style,fx,karakter (bilgi),text_en (bilgi)
+f001_s01,Tamam.,"calm, quiet, slightly tense",,Lucia,Okay.
+f001_s02,"Dur, bu herifin derdi ne lan?","shocked and alarmed, urgent, raised voice",,Lucia,"Wait, what the fuck is wrong with him?"
+f001_s03,Hayır.,"worried, firm",,Jason,No.
+f001_s04,Bir terslik var.,"suspicious, low tense voice",,Jason,Something's not right.
+f001_s05,Gidelim.,"urgent, hurried",,Jason,We gotta go.
+f001_s06,Biri mi?,"surprised question, tense",,Lucia,One of them?
+f001_s07,"İkinci ekip, merkez. Şüpheliler bölgede. Harekete geçin!","police radio dispatcher, flat professional tone",,Polis,"Unit 2, this is Command. Suspects are in the area. Let's go."
+f001_s08,"Ah, hassiktir.",frustrated curse under breath,,Lucia,"Oh, shit."
+f001_s09,Plan değişti.,"serious, decisive",,Jason,Change of plans.
+f001_s10,Ne oldu?,"alarmed, worried question",,Lucia,What happened?
+f001_s11,Çok geç artık.,"grim, resigned",,Jason,"Man, it's too late."
+f001_s12,Biri polise ihbar etmiş. Siktir.,"angry, frustrated",,Jason,Someone tipped off the cops. Fuck.
+f001_s13,"Hey, bak, dinle.","calm but urgent, persuasive",,Jason,"Oh, hey, listen."
+f001_s14,Brian Dodo'yu tamire Southland'e yollardı. Burada hep uçak olur derdi.,"focused, explaining quickly, tense",,Jason,Brian used to send the Dodo down to Southland for repairs. He said this airfield always had planes lying around.
+f001_s15,Birini kapıp siktir oluruz.,"determined, rough",,Jason,We'll take one of those and get the fuck out of here.
+f001_b01,Siktir!,"panicked, under pressure during a car chase",,Jason,Shit.
+f001_b02,Lanet olsun!,frustrated shout,,Jason,Fuck.
+f001_s16,"Ne halt edeceğiz, Jay?","panicked, desperate",,Lucia,"What the fuck are we gonna do, Jay?"
+f001_s17,Bu hâlâ elimizde.,"quiet, hopeful",,Jason,We still got this thing.
+f001_s18,Sen kullanabilirsin. Anlaşma sadece benim için dedi.,"sad, emotional, resigned",,Lucia,You can use it. She said the deal was only for me.
+f001_s19,Bari biri kurtulsun.,"quiet, self-sacrificing",,Jason,At least one of us can make it out.
+f001_b03,Araçtan inin! Eller havaya!,"police officer shouting commands through a megaphone, loud and authoritative",megaphone,Gardiyan,Get out of the vehicle with your hands in the air!
+f001_s20,Biz birlikteyiz.,"emotional, firm, loving",,Lucia,We're in this together.
+f001_s21,Sonuna kadar.,"determined, quiet",,Jason,All the way.
+f001_s22,Vay be!,surprised,,Jason,Whoa.
+f001_s23,Pes etmiyoruz.,"determined, emotional",,Lucia,We're not giving up.
+f001_s24,"Devam ediyoruz, değil mi?","hopeful, tearful smile",,Lucia,"We're just gonna keep on rolling, right?"
+f001_s25,Siktir.,"frustrated, under his breath",,Jason,Fuck.
+f001_s26,Tamam.,"resigned, quiet",,Jason,Okay.
+f001_s27,Silah çekme.,"calm, low, controlled",,Jason,Don't draw your weapon.
+f001_s28,Köprüye git.,"calm, low, instructing",,Jason,Get to the edge of the room. Get to the bridge.
+f001_s29,Atlarız.,"calm, decisive",,Jason,We jump.
+f001_s30,Yüzeceğiz.,"calm, decisive",,Jason,We swim for it.
+f001_s31,Atlamak mı?,shocked question,,Lucia,Jump?
+f001_s32,Herkes yapıyor.,calm reassurance,,Jason,People do it all the time.
+f001_s33,Suya girince sakin ol.,"calm, soothing, instructing",,Jason,Stay calm when you hit the water.
+f001_s34,Akıntı taşır.,"calm, confident",,Jason,The current will take us out.
+f001_s35,Sığlık olur.,"calm, confident",,Jason,There'll be a sandbar.
+f001_s36,Tekne bulunur.,"calm, confident",,Jason,Someone will have a boat.
+f001_s37,Al şunu.,"urgent, low",,Jason,Take it.
+f001_s38,Sonuna kadar git.,"calm, firm",,Jason,Go all the way.
+f001_s39,"Güven bana, tamam mı?",reassuring but tense,,Jason,Trust me. Okay?
+f001_s40,Tamam.,"nervous, agreeing",,Lucia,Okay.
+f001_s41,"Al, bunu tut.","quick, urgent",,Jason,Take this.
+f001_s42,Hadi.,"urgent, encouraging",,Lucia,Come on.
+f001_b05,Ellerini başının arkasına koy ve yere yat!,"police officer shouting, aggressive and commanding",megaphone,Gardiyan,Put your hands behind your head and get down on the ground.
+f001_b06,"Yere yat dedim, lan!",furious police shout,megaphone,Gardiyan,I said down on the fucking ground.
+f001_s43,Hazır mısın?,"tense, quiet",,c3,You ready?
+f001_s44b,Hadi.,"urgent, encouraging",,Jason,Come on.
+f001_s45,Yapma! Atlama lan!,"shouting, desperate warning",,Polis,Don't do it. Don't fucking jump.
+f001_s46,Hep yanındayım.,"warm, sincere",,Jason,I'm with you all the way.
+f001_s47,Biliyorsun ya.,"soft, emotional",,Jason,"You know that, right?"
+f001_s48,Elbette.,"soft, emotional, sure",,Lucia,Of course.
+f001_s49,Hadi gidelim!,"excited, determined",,Lucia,Let's go.
+f001_s50,"Üç, iki, bir!","counting down, tense",,Jason,"Three, two, one."
+f001_b09,Atla!,"urgent shout, out of breath",,Jason,jump.
+f001_b08,Aldın bile mi?,"surprised, casual",,Oyuncu,You already got it?
+f001_s52,"Hey, Duval!","calling out loudly, bored authority",,c2,"Hey, Duval!"
+f001_s53,Ziyaretçin var.,"flat, bored",,c2,Got a visitor.
+f001_s55,Sürpriz!,"cheerful, playful",,c1,Surprise!
+f001_s55b,Ha?,"surprised, puzzled, quiet",,Oyuncu,Huh?
+f001_s56,Bakalım burada ne varmış?,"curious, amused",,c4,What do we have here?
+f001_s57,Pekâlâ.,satisfied,,c3,All right.
+f001_s58,"Hey, naber dostum? Çekil yolumdan.","casual, then annoyed",,c4,"Hey, what's up, guy? Get out of my way."
+f001_s61,Nihayet.,relieved,,c4,Finally.
+f001_s62,Hadi bakalım.,excited,,c4,Here we go.
+f001_s63,Hayır...,shocked disbelief,,c3,No...
+f001_s64,Hassiktir...,stunned,,c4,Fucking...
+f001_s65,Olamaz!,shouting in disbelief,,c4,...way!

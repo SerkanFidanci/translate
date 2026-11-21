@@ -1,0 +1,121 @@
+# dubpoc: cluster → karakter adı. 'name' alanlarını doldurun ve `dubpoc speakers` ile
+# (veya `dubpoc run --from speakers`) tekrar çalıştırın. Boş kalırsa char = cluster id.
+c1:
+  name: null
+  samples:
+  - work/seg/f001_s21.wav
+  - work/seg/f001_s13.wav
+  - work/seg/f001_s02.wav
+c2:
+  name: null
+  samples:
+  - work/seg/f001_s04.wav
+  - work/seg/f001_s05.wav
+  - work/seg/f001_s22.wav
+c3:
+  name: null
+  samples:
+  - work/seg/f001_s08.wav
+c4:
+  name: null
+  samples:
+  - work/seg/f001_s18.wav
+c5:
+  name: null
+  samples:
+  - work/seg/f001_s19.wav
+  - work/seg/f001_s16.wav
+c6:
+  name: null
+  samples:
+  - work/seg/f001_s20.wav
+c7:
+  name: null
+  samples:
+  - work/seg/f001_s30.wav
+c8:
+  name: null
+  samples:
+  - work/seg/f001_s32.wav
+  - work/seg/f001_s15b.wav
+c9:
+  name: null
+  samples:
+  - work/seg/f001_s06.wav
+c10:
+  name: null
+  samples:
+  - work/seg/f001_s15.wav
+c11:
+  name: null
+  samples:
+  - work/seg/f001_s17.wav
+c12:
+  name: null
+  samples:
+  - work/seg/f001_s17b.wav
+c13:
+  name: null
+  samples:
+  - work/seg/f001_s23.wav
+c14:
+  name: null
+  samples:
+  - work/seg/f001_s24.wav
+c15:
+  name: null
+  samples:
+  - work/seg/f001_s25.wav
+c16:
+  name: null
+  samples:
+  - work/seg/f001_s26.wav
+c17:
+  name: null
+  samples:
+  - work/seg/f001_s28.wav
+c18:
+  name: null
+  samples:
+  - work/seg/f001_s29.wav
+c19:
+  name: null
+  samples:
+  - work/seg/f001_s31.wav
+c20:
+  name: null
+  samples:
+  - work/seg/f001_s34.wav
+overrides:
+  f001_s01: M
+  f001_s02: M
+  f001_s03: M
+  f001_s06: M
+  f001_s07: M
+  f001_s08: M
+  f001_s12: M
+  f001_s13: M
+  f001_s14: M
+  f001_s21: M
+  f001_s27: M
+  f001_s04: Greenway
+  f001_s05: Greenway
+  f001_s09: Greenway
+  f001_s10: Greenway
+  f001_s11: Greenway
+  f001_s22: Greenway
+  f001_s15b: Bond
+  f001_s16: Bond
+  f001_s17b: Bond
+  f001_s18: Bond
+  f001_s20: Bond
+  f001_s25: Bond
+  f001_s26: Bond
+  f001_s28: Bond
+  f001_s29: Bond
+  f001_s31: Bond
+  f001_s32: Bond
+  f001_s15: Resepsiyonist
+  f001_s17: Ajan
+  f001_s19: Ajan
+  f001_s30: Yabanci

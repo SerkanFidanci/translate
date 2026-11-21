@@ -1,0 +1,11 @@
+# DnR (diyalog / müzik / efekt) ayrıştırma: Bandit v2 (ZFTurbo MSST klonu, tools/msst).
+# MSST'nin tam requirements'ı yerine sadece Bandit v2 çıkarımı için gerekenler.
+# Ağırlıklar: Zenodo 12701995 checkpoint-multi.ckpt (CC BY-SA 4.0), scripts/setup_envs ile indirilir.
+torch==2.6.0
+torchaudio==2.6.0
+pytorch-lightning>=2.1
+librosa>=0.10
+numpy<2.3
+soundfile>=0.12
+soxr>=0.3
+pyyaml

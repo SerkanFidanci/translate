@@ -1,0 +1,4 @@
+# Chatterbox Multilingual TTS (+ ChatterboxVC alternatif VC backend'i).
+# Multilingual V3 checkpoint'i sadece GitHub master'da (PyPI 0.1.7 = 2026-03, V3 yok) -> commit'e sabitlendi.
+chatterbox-tts @ git+https://github.com/resemble-ai/chatterbox.git@ab55923c27757c90cfcc407baa57dc25a7d25217
+soundfile>=0.12

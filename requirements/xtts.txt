@@ -1,0 +1,8 @@
+# XTTS-v2 (idiap coqui-tts fork) – Türkçe dinleme testinde en yüksek MOS; ~2,2 GB VRAM.
+# Model ağırlıkları Coqui Public Model License (CPML, ticari olmayan) – indirme öncesi açık kabul gerekir.
+coqui-tts>=0.27
+torch==2.6.0   # 2.9+ torchcodec ister (Windows FFmpeg DLL sorunu)
+torchaudio==2.6.0
+soundfile>=0.12
+soxr>=0.3
+six

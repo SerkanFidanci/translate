@@ -1,0 +1,3 @@
+# Kaynak ayrıştırma (vocals / instrumental). onnxruntime-gpu + torch.
+audio-separator[gpu]>=0.48
+soundfile>=0.12

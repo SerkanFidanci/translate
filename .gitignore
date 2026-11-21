@@ -1,0 +1,36 @@
+# --- yeniden kurulabilen büyük şeyler (scripts/setup_envs.ps1 indirir/kurar)
+envs/
+tools/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# --- ses/video ve ara çıktılar: oyun sesi telifli, dublaj çıktıları seslendirme sanatçılarının sesini
+#     taklit ediyor (kişisel kullanım, dağıtılmaz). Bunlar her makinede pipeline ile yeniden üretilir.
+input/
+downloads/
+work/
+out/
+record/
+samples/
+projects/*/input/
+projects/*/downloads/
+projects/*/work/
+projects/*/out/
+projects/*/record/
+projects/*/workers
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.flac
+*.ogg
+*.wem
+*.npy
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.onnx

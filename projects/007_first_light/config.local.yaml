@@ -1,0 +1,40 @@
+# 007 First Light duyuru fragmanı (YouTube J4qY9DYE184, 3:14) — ayrı proje kökü.
+# Ortamlar, araçlar ve modeller ana dubpoc klasöründen kullanılır (bu klasöre göre göreli yollar);
+# workers/ ana klasöre bir bağlantı (junction), git'te yok: docs/KURULUM_VE_DEVAM.md
+paths:
+  ffmpeg: ../../tools/bin/ffmpeg.exe
+  vgmstream: ../../tools/vgmstream-cli.exe
+  rubberband: ../../tools/rubberband.exe
+  envs: ../../envs
+  seed_vc_repo: ../../tools/seed-vc
+  msst_repo: ../../tools/msst
+separation:
+  dnr:
+    checkpoint: ../../tools/models/bandit_v2/checkpoint-multi.ckpt
+    config: ../../tools/msst/configs/config_dnr_bandit_v2_mus64.yaml
+
+# ANTHROPIC_API_KEY yok: çeviriler translations.csv'ye elle (Claude) yazılır; yedek olarak yerel Ollama
+translate:
+  provider: openai_compat
+  model: qwen3.5:9b
+  base_url: http://localhost:11434/v1
+  api_key_env: ""
+  extra_body: {reasoning_effort: none}
+
+# GTA'da kullanıcının onayladığı ayarlar: sadece VoxCPM2, doğal mod (VC kapalı, yavaşlatma yok),
+# Türkçe devam istemli adaylar, QA'da tonlama ve Türkçe aksan ağırlığı
+tts:
+  backends: [voxcpm]
+  voxcpm:
+    n_candidates: 3
+    tr_prompt_candidates: 2
+  reuse_existing: true
+  seeds: [11, 22, 33, 44, 55]
+vc:
+  enabled: false
+fit:
+  max_stretch: 0.08
+  max_slowdown: 0.0
+  use_slot: true
+qa:
+  weights: {wer: 0.45, spk_sim: 0.2, dur: 0.1, emo: 0.1, prosody: 0.15, lang: 0.15}

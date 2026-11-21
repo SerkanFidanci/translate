@@ -1,0 +1,40 @@
+# Bu makineye özel geçersiz kılmalar (config.yaml'ın üstüne birleştirilir).
+# ANTHROPIC_API_KEY tanımlı olmadığı için test çevirisi yerel Ollama modeliyle yapılıyor.
+# Anahtarı ayarladığınızda bu dosyayı silin → config.yaml'daki claude-sonnet-5-5 kullanılır.
+translate:
+  provider: openai_compat
+  model: qwen3.5:9b
+  base_url: http://localhost:11434/v1
+  api_key_env: ""
+  extra_body: {reasoning_effort: none}
+
+# GTA 6 klibi (input/gta6_ending_ilk60.wav) için: HF token yok, kısa replikler → konuşmacı sayısı ipucu
+speakers:
+  num_speakers: 4   # tam video: geçici tahmin, ASR + perde analizinden sonra kesinleşecek
+
+# XTTS-v2 denemesi: kullanıcı CPML (ticari olmayan) lisansını 2026-11-20'de açıkça kabul etti
+tts:
+  backends: [voxcpm]   # kullanıcı isteği: sadece VoxCPM2
+  xtts:
+    tos_agreed: true
+  voxcpm:
+    n_candidates: 3          # vx1-vx3 (6 replikte daha önce üretilmiş vx4/vx5 korunur)
+    tr_prompt_candidates: 2  # vt1/vt2: Türkçe devam istemi
+  reuse_existing: true
+  seeds: [11, 22, 33, 44, 55]
+
+# Doğal mod (2026-11-20, kullanıcı: "robotikleşiyor sesler"): VoxCPM2 tınıyı zaten klonluyor; Seed-VC ve
+# %15'e varan esnetme robotik artefakt ekliyordu. VC kapalı, yavaşlatma yok, sıkıştırma en fazla %8 ve
+# sadece sonraki repliğe çarpacaksa. Seçimde anlaşılırlığın ağırlığı artırıldı.
+vc:
+  enabled: false
+fit:
+  max_stretch: 0.08
+  max_slowdown: 0.0
+  use_slot: true
+qa:
+  weights: {wer: 0.45, spk_sim: 0.2, dur: 0.1, emo: 0.1, prosody: 0.15, lang: 0.15}
+
+# Vurgu/tonlama (2026-11-20, kullanıcı: "vurgu tonlama kısımlarını hallet"): her replik için aynı karakterin
+# iyi çıkmış bir Türkçe repliğinden devam eden 2 ek VoxCPM2 adayı (vt1/vt2); mevcut adaylar yeniden üretilmez.
+# QA'da tekdüze (robotik) tonlamayı cezalandıran perde canlılığı ölçüsü.

@@ -1,0 +1,19 @@
+# Seed-VC (tools/seed-vc klonu) – repodaki requirements.txt Windows'ta doğrudan kurulamıyor
+# (nightly + sabit torch satırları çakışıyor); burada sadece çıkarım için gerekenler var.
+torch==2.6.0
+torchaudio==2.6.0
+transformers==4.46.3
+numpy==1.26.4
+scipy==1.13.1
+librosa==0.10.2
+munch==4.0.0
+einops==0.8.0
+descript-audio-codec==1.0.0
+huggingface-hub>=0.28.1,<1.0
+hydra-core==1.3.2
+accelerate
+pyyaml
+soundfile
+matplotlib
+tqdm
+pydub

@@ -1,0 +1,98 @@
+# dubpoc: cluster → karakter adı. 'name' alanlarını doldurun ve `dubpoc speakers` ile
+# (veya `dubpoc run --from speakers`) tekrar çalıştırın. Boş kalırsa char = cluster id.
+c1:
+  name: null
+  samples:
+  - work/seg/f001_s18.wav
+  - work/seg/f001_s02.wav
+  - work/seg/f001_s24.wav
+c2:
+  name: null
+  samples:
+  - work/seg/f001_s14.wav
+  - work/seg/f001_s07.wav
+  - work/seg/f001_s12.wav
+c3:
+  name: null
+  samples:
+  - work/seg/f001_s55.wav
+  - work/seg/f001_s16.wav
+c4:
+  name: null
+  samples:
+  - work/seg/f001_s62.wav
+  - work/seg/f001_s58.wav
+  - work/seg/f001_s50.wav
+overrides:
+  f001_b01: Jason
+  f001_b02: Jason
+  f001_b03: Gardiyan
+  f001_b05: Gardiyan
+  f001_b06: Gardiyan
+  f001_b08: Oyuncu
+  f001_s01: Lucia
+  f001_s02: Lucia
+  f001_s03: Jason
+  f001_s04: Jason
+  f001_s05: Jason
+  f001_s06: Lucia
+  f001_s07: Polis
+  f001_s08: Lucia
+  f001_s09: Jason
+  f001_s10: Lucia
+  f001_s11: Jason
+  f001_s12: Jason
+  f001_s13: Jason
+  f001_s14: Jason
+  f001_s15: Jason
+  f001_s16: Lucia
+  f001_s17: Jason
+  f001_s18: Lucia
+  f001_s19: Jason
+  f001_s20: Lucia
+  f001_s21: Jason
+  f001_s22: Jason
+  f001_s23: Lucia
+  f001_s24: Lucia
+  f001_s25: Jason
+  f001_s26: Jason
+  f001_s27: Jason
+  f001_s28: Jason
+  f001_s29: Jason
+  f001_s30: Jason
+  f001_s31: Lucia
+  f001_s32: Jason
+  f001_s33: Jason
+  f001_s34: Jason
+  f001_s35: Jason
+  f001_s36: Jason
+  f001_s37: Jason
+  f001_s38: Jason
+  f001_s39: Jason
+  f001_s40: Lucia
+  f001_s41: Jason
+  f001_s42: Lucia
+  f001_s43: Jason
+  f001_s44: Lucia
+  f001_s44b: Jason
+  f001_s45: Polis
+  f001_s46: Jason
+  f001_s47: Jason
+  f001_s48: Lucia
+  f001_s49: Lucia
+  f001_s50: Jason
+  f001_s51: Ziyaretci
+  f001_s52: Gardiyan
+  f001_s53: Gardiyan
+  f001_s54: Gardiyan
+  f001_s55: Ziyaretci
+  f001_s56: Oyuncu
+  f001_s57: Oyuncu
+  f001_s58: Oyuncu
+  f001_s59: Oyuncu
+  f001_s60: Oyuncu
+  f001_s61: Oyuncu
+  f001_s62: Oyuncu
+  f001_s63: Oyuncu
+  f001_s64: Oyuncu
+  f001_s65: Oyuncu

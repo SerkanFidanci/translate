@@ -1,0 +1,182 @@
+paths:
+  ffmpeg: ffmpeg
+  vgmstream: tools/vgmstream-cli.exe
+  rubberband: tools/rubberband.exe
+  envs: envs                  # her ağır model kendi venv'inde: envs/<ad>/
+  seed_vc_repo: tools/seed-vc # setup_envs ile klonlanır
+  msst_repo: tools/msst       # Bandit v2 (DnR) model kodu, setup_envs ile klonlanır
+
+source_lang: en
+target_lang: tr
+
+gpu:
+  require_cuda: true          # false → CPU'da (çok yavaş) çalışmaya izin ver
+
+separation:
+  mode: auto            # auto | always | never
+  # dnr: Bandit v2 sinematik 3-stem (konuşma/müzik/efekt) – ara sahneler için önerilen
+  # audio_separator: müzik vocals modeli (spec'teki yol); konuşmayı bazen "enstrüman" sanıyor
+  engine: dnr
+  dnr_refine_vocals: false   # true: speech stem'i ayrıca vocals RoFormer'dan geçir (hibrit)
+  dnr:
+    checkpoint: tools/models/bandit_v2/checkpoint-multi.ckpt   # Zenodo 12701995, CC BY-SA 4.0
+    config: tools/msst/configs/config_dnr_bandit_v2_mus64.yaml
+    batch_size: 2          # 6 GB VRAM için; 8 GB+ ise 4-8
+    num_overlap: 4
+    fp16: true
+  model: "vocals_mel_band_roformer.ckpt"             # (engine: audio_separator) boşsa: audio-separator --list_models içinden en yüksek SDR'li BS/Mel-Band RoFormer vocals modeli seçilip buraya yazılır
+  clean_bg_threshold_dbfs: -45   # auto modda: bg RMS bunun altındaysa dosya "temiz" sayılır, bg atılır
+  voice_missing_db: 15           # auto modda: ses stem'i orijinalden bu kadar dB düşükse ayrıştırma başarısız sayılır
+
+diarization:
+  mode: auto            # auto | always | never
+  min_duration_s: 8     # auto modda bundan kısa dosyalar tek konuşmacı sayılır
+  hf_token_env: HF_TOKEN
+  min_segment_s: 0.4
+  fallback_vad: true    # token yokken: enerji eşiğinin kaçırdığı sessiz replikleri Silero VAD ile ekle
+  # Arka plan konuşması katmanı: megafon/telsiz anonsu, uzaktan bağırma gibi konuşmaları ayrıştırma modelleri
+  # "efekt/müzik" sayıyor. Arka plan (müzik+efekt) kısa örtüşen pencerelerle Whisper'la taranır (VAD'sız; Silero
+  # bunları konuşma saymıyor), güvenilir segmentler ayrı "bg" katmanı satırları olur (<file>_bNN), dublajlanır;
+  # mix orijinali arka plandan spektral kenetlemeyle bastırır. Diyaloğun üstüne düşenler (sızıntı) dublajlanmaz,
+  # sadece dublajlı diyaloğun altından bastırılır.
+  bg_speech:
+    enabled: true
+    min_logprob: -0.8         # Whisper segment avg_logprob alt sınırı
+    max_no_speech: 0.6
+    min_word_p: 0.45          # ortalama kelime olasılığı
+    max_compression: 2.4      # tekrar döngüsü halüsinasyonu
+    min_rms_dbfs: -50.0       # bu kadar sessiz "konuşma" duyulmaz, dublajlanmaz
+    max_dialog_overlap: 0.5   # segmentin bu oranından fazlası diyalogla örtüşüyorsa sızıntı say
+    scan_win_s: 10            # tarama penceresi / adımı (tek geçişte kısa küfür/ünlemler kaçıyordu)
+    scan_hop_s: 5
+    # mix'te bastırma: her frekans bandı, bölgenin çevresindeki arka planın medyanının bu kadar üstüne kırpılır.
+    # 0 dB megafon anonsunu silmeye yetiyor ama müzikle aynı seviyedeki kısa küfürleri ("Oh, shit") bırakıyordu;
+    # -6 dB'de Whisper İngilizceyi artık anlayamıyor (bölgede müzik ~6 dB kısılır, Türkçe replik üstüne biner).
+    suppress_k_db: -6.0
+
+speakers:
+  cluster_threshold: 0.55     # cosine distance, agglomerative
+  num_speakers: null          # biliniyorsa klasörsüz dosyalardaki konuşmacı sayısı (eşik yerine kullanılır)
+  bank_max_seconds: 20
+  bank_short_seconds: 12      # OmniVoice için tam kliplerden kısa referans (ref_text ile birebir)
+  bank_min_clip_s: 1.5
+  bank_target_min_s: 6        # uzun klipler yetmezse kısa kliplerle en az bu kadar sn'ye tamamla
+  folder_name_as_character: true   # input/<karakter>/dosya.wav yapısı varsa clustering atlanır
+
+asr:
+  model: large-v3       # faster-whisper
+  compute_type: float16 # 6 GB VRAM'de sorun olursa: int8_float16
+  beam_size: 5
+  file_context: true    # çok segmentli dosyada tüm dosyayı bir kerede yazdır, kelimeleri segmentlere dağıt
+  file_vad: true        # dosya bağlamlı geçişte Silero VAD: müzikli uzun bölümlerde halüsinasyon döngüsünü önler
+
+emotion:
+  model: emotion2vec/emotion2vec_plus_large   # HF hub id (funasr hub="hf")
+  # (nonverbal_max_words kaldırıldı: tek kelimelik gerçek sözcükler de dublajlanır)
+  intensity_source: one_minus_neutral  # one_minus_neutral (önerilen) | top_score (spec)
+
+translate:
+  provider: anthropic   # anthropic | openai_compat
+  model: claude-sonnet-5-5
+  api_key_env: ANTHROPIC_API_KEY
+  base_url: ""          # openai_compat için (örn. Ollama: http://localhost:11434/v1)
+  effort: medium        # anthropic: low | medium | high
+  fallbacks: true       # anthropic: reddedilen isteği sunucu tarafında yedek modele yönlendir
+  tr_syllables_per_sec: 6.0
+  max_shorten_rounds: 2
+  shorten_trigger_syll_ratio: 1.15
+
+tts:
+  # Sırayla çalışır; her backend kendi adaylarını üretir, QA en iyisini seçer.
+  # chatterbox_mtl: duygu yoğunluğu (exaggeration) kontrolü güçlü
+  # omnivoice: Türkçe CER/benzerlik skorları yüksek, duration= ile hedef sürede üretir (ağırlıklar CC-BY-NC)
+  backends: [chatterbox_mtl, omnivoice]
+  chatterbox_t3_model: v3   # Multilingual V3 (2026-06); v2 = eski varsayılan
+  language_id: tr
+  reference_mode: bank  # bank | original_line
+  n_candidates: 3
+  seeds: [11, 22, 33]
+  exaggeration_range: [0.35, 0.9]  # intensity 0..1 → bu aralığa map
+  cfg_weight_bank: 0.5
+  cfg_weight_original_line: 0.0    # İngilizce referansla aksan sızmasın diye
+  high_exaggeration_cfg: 0.3       # exaggeration ≥ 0.7 iken (bank modunda)
+  emotion_ref_candidates: 2        # bank modunda son N Chatterbox adayı: referans = orijinal replik + banka (duygu taşır)
+  cfg_weight_emotion_ref: 0.3
+  temperature: 0.8
+  max_chars_per_chunk: 250
+  omnivoice:
+    n_candidates: 2
+    num_step: 32
+    guidance_scale: 2.0
+    use_duration: true      # hedef konuşma süresinde üret
+    duration_modes: [target, natural]   # aday başına: hedef süre / doğal süre (sıkı hedef anlaşılırlığı bozabiliyor)
+    min_target_s: 1.0       # bundan kısa hedeflerde sadece doğal süre
+  voxcpm:                   # backends listesine "voxcpm" eklenince (envs/voxcpm, Apache-2.0, ~5,6 GB VRAM, yavaş)
+    n_candidates: 1
+    cfg_value: 2.0
+    inference_timesteps: 10
+    auto_style: true        # translations.csv'de style yoksa duygu etiketinden talimat üret
+    plain_candidate: true   # 3. aday talimatsız (kısa repliklerde daha temiz telaffuz)
+  xtts:                     # backends listesine "xtts" eklenince kullanılır (envs/xtts)
+    tos_agreed: false       # XTTS-v2 ağırlıkları CPML (ticari olmayan) – kabul etmeden indirilmez
+    n_candidates: 2         # 1: karakter bankası, 2: orijinal replik + banka (duygu)
+    temperature: 0.75
+    emotion_ref: true
+    duration_retry: true    # süre %12'den fazla saparsa speed ile bir kez yeniden üret
+    max_speed_adjust: 0.3
+    dtype: float16
+
+vc:
+  enabled: true         # false = "doğal mod": ses klonlayan TTS'lerde (VoxCPM2/XTTS) VC atlanır, ham adaylar kullanılır
+  backend: seed_vc      # seed_vc | chatterbox_vc
+  diffusion_steps: 30
+  inference_cfg_rate: 0.7
+  fp16: true
+  length_adjust: true          # süreyi VC içinde hedefe yaklaştır (±max_length_adjust), fit'te kalan farkı esnet
+  max_length_adjust: 0.2
+  also_score_without_vc: true  # VC Türkçe anlaşılırlığı düşürebilir: ham TTS adayları da yarışsın
+
+fit:
+  max_stretch: 0.15     # ±%15'e kadar time-stretch
+  max_slowdown: null    # yavaşlatma sınırı (null = max_stretch); 0 = kısa dublaj asla yavaşlatılmaz, sessizlikle doldurulur
+  use_slot: false       # true = uzun aday sonraki repliğe kadar taşabilir, ancak çarparsa sıkıştırılır
+  slot_margin_s: 0.12   # use_slot: sonraki replikten önce bırakılacak boşluk
+  shorten_trigger_ratio: 1.25   # tr_dur / src_dur bunu aşarsa çeviri kısaltılır
+  pad_ms: 40
+  silence_db: -45
+  stretch_engine: auto  # auto | pedalboard (Rubber Band R3, gömülü) | ffmpeg_rubberband | rubberband_cli | atempo
+  true_peak_db: -1.0
+  bg_match_spectrum: true   # arka plan konuşması dublajına orijinalin megafon/telsiz/uzaklık rengini aktar
+
+qa:
+  wer_max: 0.15
+  cer_max: 0.08                # Türkçe eklemeli dil: CER, WER'den daha adil bir ek metrik
+  text_metric: wer             # wer (spec) | cer (Türkçe için önerilen)
+  fail_wer: 0.4
+  fail_cer: 0.25
+  short_ref_words: 2           # bu kadar veya daha az kelimelik repliklerde durum/skor CER ile (WER ikili)
+  spk_sim_min_relative: 0.85   # karakterin kendi orijinal klipleri arası benzerliğe göre oran
+  dur_tolerance: 0.10
+  # spec: {wer: 0.5, spk_sim: 0.3, dur: 0.2}. Duygu ("aynı heyecan") hedefi için emo eklendi.
+  weights: {wer: 0.45, spk_sim: 0.25, dur: 0.15, emo: 0.15, lang: 0.15}   # lang: Türkçe aksan (Whisper dil tanıma)
+  asr_model: large-v3
+  emotion_metrics: true        # dublaj ile orijinal arasında duygu dağılımı benzerliği (rapor)
+
+# Kanal efekti (fit aşaması, fx modülü): orijinal replik telefondan, megafondan ya da telsizden duyuluyorsa
+# dublaja aynı cihaz zinciri uygulanır (bant sınırları orijinalden ölçülür, sonda tınısı aktarılır).
+#   phone     : dar bant + 8 kHz μ-law codec + hafif sıkıştırma
+#   megaphone : bant geçiren + sert distorsiyon + kompresör + dış mekân yankısı
+#   radio     : dar bant + çok sert distorsiyon + hışırtı
+# Tür önceliği: translations.csv "fx" sütunu / overrides > style notundaki anahtar kelime (megaphone, on the
+# phone, radio...; yalnızca orijinal gerçekten dar bantsa) > otomatik (alçak ve tiz birlikte kesikse phone).
+fx:
+  enabled: true
+  auto: true
+  phone_lo_db: -6.0     # 60-250 Hz, 400-3000 Hz'e göre bundan düşük ve
+  phone_hi_db: -26.0    # 4,5-6,5 kHz bundan düşükse → telefon/cihaz hoparlörü
+  hint_hi_db: -24.0     # style ipucu ancak tizler bundan düşükse uygulanır
+  overrides: {}         # seg_id: phone | megaphone | radio | none
+
+mix:
+  limiter_db: -1.0
+  remove_bg_speech: true   # dublajlanan arka plan konuşmasını ve diyalog sızıntısını arka plandan bastır

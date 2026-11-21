@@ -1,0 +1,5 @@
+# OmniVoice (k2-fsa) – Türkçe destekli, duration= ile HEDEF SÜREDE üretim yapabilen zero-shot TTS.
+# Ağırlıklar CC-BY-NC (kişisel POC için uygun, ticari kullanım yok).
+omnivoice
+soundfile>=0.12
+soxr>=0.3
